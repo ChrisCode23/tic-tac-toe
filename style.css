@@ -74,12 +74,12 @@ h6 {
     margin-top: 12px;
 }
 
-.gameboard .score {
+.gameboard .points {
     font-size: 1.7rem;
 }
 
-.user,
-.cpu {
+.user-score,
+.cpu-score {
     width: 50%;
     height: 100%;
     display: flex;
@@ -101,13 +101,13 @@ h6 {
     border-right: 1px solid #ccc;
 }
 
-.user.score,
-.cpu.score {
+.user.points,
+.cpu.points {
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
-.user.score {
+.user.points {
     border-right: 1px solid #222020;
 }
