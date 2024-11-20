@@ -12,8 +12,17 @@ const Gameboard = () => {
         };
     };
 
+
+
     // This returns the board under form of a 2d array, formed by three arrays which represent each row
-    const getBoard = () => board;
+    const getBoard = () => {
+        // Gets the value of each cell, useful to figure out when someone wins a round
+        const boardToCellValues = board.map((row) => row.map((cell) => cell.getValue()));
+        return boardToCellValues;
+    };
+
+
+
 
     // Takes the *coordinates* of the cell which is marked by the player on the board
     // Changes that cell's value to represent the player that marked it
@@ -32,15 +41,22 @@ const Gameboard = () => {
         board[row - 1][column - 1].addSign(player);
     }
 
+
+
+
     // Renders a similar *preview* of what the board should look like after building UI
     const printBoard = () => {
-        const boardToCell = board.map((row) => row.map((cell) => cell.getValue()));
-        console.log(boardToCell);
+        console.log(getBoard());
     };
 
     return { getBoard, markSign, printBoard };
 
 };
+
+
+
+
+
 
 
 /* A Cell is a square of the gameboard
@@ -70,7 +86,13 @@ const Cell = () => {
     }
 };
 
+
+
+
+
 const gameController = () => {
+    let gameFinished = false;
+
     // The sign number indicates which player has marked it
     const players = [
         {
@@ -95,33 +117,100 @@ const gameController = () => {
     };
 
     const printNewRound = () => {
+        board.printBoard();
         console.log(`It's ${getActivePlayer().name}'s turn!`);
     };
-
-    // Active player chooses cell to mark
-    const makeMove = (row, column) => {
-        console.log(`${getActivePlayer().name} has marked his sign on cell located in row ${row}, column ${column}`);
-        board.markSign(row, column, getActivePlayer().sign);
-    }
-
+    
     // Execution of a single round
     const playRound = () => {
-        printNewRound();
+        
+        let isRoundFinished = false;
 
-        makeMove(1, 2);
+        // Checks if the current player has won the round
+        const checkWin = (board) => {
+            let win = 3;
+            let rowCount = 0;
+            let colCount = 0;
+            let diagLeftCount = 0;
+            let diagRightCount = 0;
+            let length = board.length;
+    
+            for (let i = 0; i < length; i++) {
+                for (let j = 0; j < length; j++) {
+                    (board[i][j] == 1 || board[i][j] == 2) ? rowCount++ : rowCount = 0;
+    
+                    (board[j][i] == 1 || board[j][i] == 2) ? colCount++ : colCount = 0;
+    
+                    if ((board[i][j] == 1 || board[i][j] == 2) && i < length - win + 1) {
+                        diagLeftCount = 0;
+                        diagRightCount = 0;
+                        for (let z = 0; z < win; z++) {
+                            (board[i + z][j + z]) == 1 ? diagRightCount++ : diagRightCount = 0;
+                            (board[i + z][j - z]) == 1 ? diagLeftCount++ : diagLeftCount = 0;
+                        }
+                    }
+    
+                    if (rowCount == win || colCount == win || diagLeftCount == win || diagRightCount == win) {
+                        console.log(`${getActivePlayer().name} has won the round`);
+                        isRoundFinished = true;
+                        return true;
+                    }
+                } rowCount = 0;
+                
+            }
+            
+        };
 
-        board.printBoard();
+        // Player chooses cell to mark and the value is added to that cell
+        const makeMove = (row, column) => {
+            console.log(`${getActivePlayer().name} has marked his sign on cell located in row ${row}, column ${column}`);
+            board.markSign(row, column, getActivePlayer().sign);
+            // Every time after player makes his move, checks if he's won
+            checkWin(board.getBoard());
+            
+        }
+    
+        
+        if (isRoundFinished === true) { return } else { makeMove(2, 2) };
 
         switchPlayersTurn();
 
         printNewRound();
 
-        makeMove(2, 3);
-
-        board.printBoard();
+        if (isRoundFinished === true) { return } else { makeMove(1, 1) };
 
         switchPlayersTurn();
+
+        printNewRound();
+
+        if (isRoundFinished === true) { return } else { makeMove(3, 3) };
+
+        switchPlayersTurn();
+
+        printNewRound();
+
+        if (isRoundFinished === true) { return } else { makeMove(1, 2) };
+
+        switchPlayersTurn();
+
+        printNewRound();
+
+        if (isRoundFinished === true) { return } else { makeMove(3, 1) };
+
+        switchPlayersTurn();
+
+        printNewRound();
+
+        if (isRoundFinished === true) { return } else { makeMove(2, 3) };
+
+        switchPlayersTurn();
+
+        printNewRound();
     };
+
+    printNewRound();
+
+
 
     return { playRound };
 }
