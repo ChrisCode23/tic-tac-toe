@@ -24,7 +24,6 @@ const Gameboard = () => {
 
     // It determines if any move is possible by checking if any cell is available
     const checkCells = () => {
-
         let availableCells = 0;
 
         // Loops through all the cells in the board
@@ -47,18 +46,13 @@ const Gameboard = () => {
     // Takes the *coordinates* of the cell which is marked by the player on the board
     // Changes that cell's value to represent the player that marked it
     const markSign = (row, column, player) => {
-        
         // Both row and column values are deducted by 1 to allow player input to be correct
         row = row - 1;
         column = column - 1;
     
         // Changes the cell value selected by the player (the actual value is related to the player himself)
         board[row][column].addSign(player);
-        
     }
-
-
-
 
     // Renders a similar *preview* of what the board should look like after building UI
     const printBoard = () => {
@@ -68,11 +62,6 @@ const Gameboard = () => {
     return { getBoard, markSign, printBoard, checkCells };
 
 };
-
-
-
-
-
 
 
 /* A Cell is a square of the gameboard
@@ -121,7 +110,6 @@ const gameController = () => {
             name: "PlayerTwo",
             sign: 2,
             score: 0
-
         }
     ];
 
@@ -140,10 +128,7 @@ const gameController = () => {
 
     // Execution of a single round
     const playRound = () => {
-
         let isRoundFinished = false;
-
-
 
         // Checks if the current player has won the round
         const checkWin = (board, player) => {
@@ -172,7 +157,7 @@ const gameController = () => {
                 if (rowCount === win || colCount === win || diagLeftCount === win || diagRightCount === win) {
                     console.log(`${getActivePlayer().name} has won the round`);                    
                     isRoundFinished = true;
-                    return true;
+                    return playRound();
                 }
 
             } rowCount = 0;
@@ -180,7 +165,6 @@ const gameController = () => {
         };
 
         const printNewRound = () => {
-
             board.printBoard();
             if (!isRoundFinished) {
                 console.log(`It's ${getActivePlayer().name}'s turn!`);
@@ -188,8 +172,33 @@ const gameController = () => {
         };
 
         // Player chooses cell to mark and the value is added to that cell
-        const makeMove = (row, column) => {
+        const makeMove = () => {
+            let row = 0;
+            let column = 0;
+            
+            // The prompt asks the active player the move he wants to make by entering "coordinates"
+            // If both row or column are less than 1 or higher than 3, consider it invalid and make player input again
+            const chooseRow = () => {
+                do {
+                row = parseInt(prompt("Choose row", ""), 10);
+            } while (row < 1 || row > 3);
+            }
 
+            const chooseColumn = () => {
+                do {
+                    column = parseInt(prompt("Choose column", ""), 10);
+                } while (column < 1 || column > 3);
+                }
+            
+            // Once both prompts have been entered, check if the coordinates match a cell that's already been selected
+            // If so, make user enter the coordinates again until they don't match an occupied cell
+            chooseRow();
+            chooseColumn();
+            while (board.getBoard()[row - 1][column - 1] != 0) {
+                chooseRow();
+                chooseColumn();
+            }
+            
             // If no cells are available based on value returned by "checkCells", then no move is made
             // Else it logs the move, makes it and checks if we have a winner
             if (board.checkCells() == false) {
@@ -199,11 +208,11 @@ const gameController = () => {
             } else {
             console.log(`${getActivePlayer().name} has made his move`);
             board.markSign(row, column, getActivePlayer().sign);
+
             // Every time after player makes his move, checks if he's won
             checkWin(board.getBoard(), players[0]);
             checkWin(board.getBoard(), players[1]);
             }
-
         }
 
         printNewRound();
@@ -272,9 +281,6 @@ const gameController = () => {
 
 
     };
-
-
-
 
     return { playRound };
 }
