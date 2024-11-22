@@ -157,7 +157,7 @@ const gameController = () => {
                 if (rowCount === win || colCount === win || diagLeftCount === win || diagRightCount === win) {
                     console.log(`${getActivePlayer().name} has won the round`);                    
                     isRoundFinished = true;
-                    return playRound();
+                    return true;
                 }
 
             } rowCount = 0;
@@ -181,13 +181,13 @@ const gameController = () => {
             const chooseRow = () => {
                 do {
                 row = parseInt(prompt("Choose row", ""), 10);
-            } while (row < 1 || row > 3);
+            } while (row < 1 || row > 3 || isNaN(row));
             }
 
             const chooseColumn = () => {
                 do {
                     column = parseInt(prompt("Choose column", ""), 10);
-                } while (column < 1 || column > 3);
+                } while (column < 1 || column > 3 || isNaN(column));
                 }
             
             // Once both prompts have been entered, check if the coordinates match a cell that's already been selected
