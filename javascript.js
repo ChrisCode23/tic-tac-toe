@@ -34,7 +34,7 @@ const Gameboard = () => {
                 if (column.getValue() == 0) {
                     availableCells++;
                     return true;
-                } 
+                }
             })
         })
         if (availableCells == 0) { return false };
@@ -49,7 +49,7 @@ const Gameboard = () => {
         // Both row and column values are deducted by 1 to allow player input to be correct
         row = row - 1;
         column = column - 1;
-    
+
         // Changes the cell value selected by the player (the actual value is related to the player himself)
         board[row][column].addSign(player);
     }
@@ -155,7 +155,7 @@ const gameController = () => {
                     }
                 }
                 if (rowCount === win || colCount === win || diagLeftCount === win || diagRightCount === win) {
-                    console.log(`${getActivePlayer().name} has won the round`);                    
+                    console.log(`${getActivePlayer().name} has won the round`);
                     isRoundFinished = true;
                     return true;
                 }
@@ -175,30 +175,48 @@ const gameController = () => {
         const makeMove = () => {
             let row = 0;
             let column = 0;
-            
-            // The prompt asks the active player the move he wants to make by entering "coordinates"
-            // If both row or column are less than 1 or higher than 3, consider it invalid and make player input again
+            // Holds the only row/column selectable by the User. Allows the CPU to select one of these numbers
+            let validAns = [1, 2, 3];
+
+            /* The prompt asks the active player the move he wants to make by entering "coordinates"
+            ** If both row or column are less than 1 or higher than 3, consider it invalid and make User input again
+            ** If it's CPU's turn instead, it generates a random number for row and column
+            ** Allowing to make it choose *coordinates* automatically
+            */ 
             const chooseRow = () => {
-                do {
-                row = parseInt(prompt("Choose row", ""), 10);
-            } while (row < 1 || row > 3 || isNaN(row));
+                if (getActivePlayer() === players[0]) {
+                    do {
+                        row = parseInt(prompt("Choose row", ""), 10);
+                    } while (row < validAns[0] || row > validAns[2] || isNaN(row));
+                }
+                if (getActivePlayer() === players[1]) {
+                    row = validAns[Math.floor(Math.random() * validAns.length)];
+                }
+            }
+            const chooseColumn = () => {
+                if (getActivePlayer() === players[0]) {
+                    do {
+                        column = parseInt(prompt("Choose column", ""), 10);
+                    } while (column < validAns[0] || column > validAns[2] || isNaN(column));
+                }
+                if (getActivePlayer() === players[1]) {
+                    column = validAns[Math.floor(Math.random() * validAns.length)];
+                }
             }
 
-            const chooseColumn = () => {
-                do {
-                    column = parseInt(prompt("Choose column", ""), 10);
-                } while (column < 1 || column > 3 || isNaN(column));
-                }
-            
+
             // Once both prompts have been entered, check if the coordinates match a cell that's already been selected
-            // If so, make user enter the coordinates again until they don't match an occupied cell
+            // If so, make player enter the coordinates again until they don't match an occupied cell
             chooseRow();
             chooseColumn();
             while (board.getBoard()[row - 1][column - 1] != 0) {
                 chooseRow();
                 chooseColumn();
             }
-            
+
+
+
+
             // If no cells are available based on value returned by "checkCells", then no move is made
             // Else it logs the move, makes it and checks if we have a winner
             if (board.checkCells() == false) {
@@ -206,12 +224,12 @@ const gameController = () => {
                 isRoundFinished = true;
                 return;
             } else {
-            console.log(`${getActivePlayer().name} has made his move`);
-            board.markSign(row, column, getActivePlayer().sign);
+                console.log(`${getActivePlayer().name} has made his move`);
+                board.markSign(row, column, getActivePlayer().sign);
 
-            // Every time after player makes his move, checks if he's won
-            checkWin(board.getBoard(), players[0]);
-            checkWin(board.getBoard(), players[1]);
+                // Every time after player makes his move, checks if he's won
+                checkWin(board.getBoard(), players[0]);
+                checkWin(board.getBoard(), players[1]);
             }
         }
 
