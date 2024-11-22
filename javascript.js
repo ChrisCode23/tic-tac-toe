@@ -113,7 +113,7 @@ const gameController = () => {
         }
     ];
 
-    const board = Gameboard();
+    
 
     // Sets default player who starts the game
     let activePlayer = players[0];
@@ -124,13 +124,39 @@ const gameController = () => {
         activePlayer = activePlayer === players[0] ? players[1] : players[0];
     };
 
+    let isGameOver = () => {
+        if (players[0].score == 5 || players[1].score == 5) {
+            return true;
+        }
+        return false;
+    }
+
+    const gameOver = () => {
+        let winner = players[0].score == winScore ? players[0].name : players[1].name;
+        console.log(`${winner} has won the game!!`);
+    }
+
 
 
     // Execution of a single round
     const playRound = () => {
+        // When a round ends, the score of the current player increases if he won
+        // Anytime a round start, it checks if one of the players has won
+        // If thats the case, it ends the game
+        // Otherwise, it plays the round
+
+        // Prevents to start a new round when a winner is found
+        if (players[0].score == 5 || players[1].score == 5) {
+            return;
+        }
+
+        // Resets the board after new round starts
+        const board = Gameboard();
+
         let isRoundFinished = false;
 
-        // Checks if the current player has won the round
+
+        // Checks if the current player has won the round and the game
         const checkWin = (board, player) => {
             let win = 3;
             let rowCount = 0;
@@ -156,7 +182,12 @@ const gameController = () => {
                 }
                 if (rowCount === win || colCount === win || diagLeftCount === win || diagRightCount === win) {
                     console.log(`${getActivePlayer().name} has won the round`);
+                    getActivePlayer().score++;
                     isRoundFinished = true;
+                    // Ends the game if one of the players has reached the target score
+                    if (isGameOver()) {
+                        return gameOver();
+                    }
                     return true;
                 }
 
@@ -182,7 +213,7 @@ const gameController = () => {
             ** If both row or column are less than 1 or higher than 3, consider it invalid and make User input again
             ** If it's CPU's turn instead, it generates a random number for row and column
             ** Allowing to make it choose *coordinates* automatically
-            */ 
+            */
             const chooseRow = () => {
                 if (getActivePlayer() === players[0]) {
                     do {
@@ -209,13 +240,11 @@ const gameController = () => {
             // If so, make player enter the coordinates again until they don't match an occupied cell
             chooseRow();
             chooseColumn();
+
             while (board.getBoard()[row - 1][column - 1] != 0) {
                 chooseRow();
                 chooseColumn();
             }
-
-
-
 
             // If no cells are available based on value returned by "checkCells", then no move is made
             // Else it logs the move, makes it and checks if we have a winner
@@ -232,6 +261,8 @@ const gameController = () => {
                 checkWin(board.getBoard(), players[1]);
             }
         }
+
+        
 
         printNewRound();
 
@@ -300,9 +331,14 @@ const gameController = () => {
 
     };
 
+
     return { playRound };
 }
 
 const game = gameController();
 
-game.playRound();
+const newRound = document.querySelector(".new-round");
+
+newRound.addEventListener("click", () => {
+    game.playRound();
+})
