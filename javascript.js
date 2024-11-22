@@ -102,12 +102,12 @@ const gameController = () => {
     // The sign number indicates which player has marked it
     const players = [
         {
-            name: "PlayerOne",
+            name: "User",
             sign: 1,
             score: 0
         },
         {
-            name: "PlayerTwo",
+            name: "CPU",
             sign: 2,
             score: 0
         }
@@ -217,63 +217,63 @@ const gameController = () => {
 
         printNewRound();
 
-        if (isRoundFinished === true) { return } else { makeMove(3, 1) };
+        if (isRoundFinished === true) { return } else { makeMove() };
 
         switchPlayersTurn();
 
         printNewRound();
 
-        if (isRoundFinished === true) { return } else { makeMove(3, 2) };
+        if (isRoundFinished === true) { return } else { makeMove() };
 
         switchPlayersTurn();
 
         printNewRound();
 
-        if (isRoundFinished === true) { return } else { makeMove(1, 2) };
+        if (isRoundFinished === true) { return } else { makeMove() };
 
         switchPlayersTurn();
 
         printNewRound();
 
-        if (isRoundFinished === true) { return } else { makeMove(2, 3) };
+        if (isRoundFinished === true) { return } else { makeMove() };
 
         switchPlayersTurn();
 
         printNewRound();
 
-        if (isRoundFinished === true) { return } else { makeMove(2, 1) };
-
-        switchPlayersTurn();
-
-        printNewRound();
-
-
-        if (isRoundFinished === true) { return } else { makeMove(1, 1) };
-
-        switchPlayersTurn();
-
-        printNewRound();
-
-        if (isRoundFinished === true) { return } else { makeMove(2, 2) };
-
-        switchPlayersTurn();
-
-        printNewRound();
-
-        if (isRoundFinished === true) { return } else { makeMove(3, 3) };
+        if (isRoundFinished === true) { return } else { makeMove() };
 
         switchPlayersTurn();
 
         printNewRound();
 
 
-        if (isRoundFinished === true) { return } else { makeMove(1, 3) };
+        if (isRoundFinished === true) { return } else { makeMove() };
 
         switchPlayersTurn();
 
         printNewRound();
 
-        if (isRoundFinished === true) { return } else { makeMove(3, 3) };
+        if (isRoundFinished === true) { return } else { makeMove() };
+
+        switchPlayersTurn();
+
+        printNewRound();
+
+        if (isRoundFinished === true) { return } else { makeMove() };
+
+        switchPlayersTurn();
+
+        printNewRound();
+
+
+        if (isRoundFinished === true) { return } else { makeMove() };
+
+        switchPlayersTurn();
+
+        printNewRound();
+
+        if (isRoundFinished === true) { return } else { makeMove() };
 
         switchPlayersTurn();
 
