@@ -117,15 +117,68 @@ h6 {
     width: 512px;
     height: 512px;
     margin: 48px auto 0;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    gap: 14px;
+    flex-direction: column;
+}
+#row-0,
+#row-1,
+#row-2 {
+    display: flex;
+    flex-grow: 1;
     gap: 14px;
 }
-
-.gameboard div{
+/* .gameboard .cell-1
+{
     background-color: #ebefef;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+} */
+
+.cell-0,
+.cell-1,
+.cell-2 {
+    background-color: #ebefef;
+    flex-grow: 1;
 }
 
 .new-round {
     margin-left: 48px;
+}
+
+.sign {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+.x-rotate-l,
+.x-rotate-r {
+    width: 99%;
+    height: 16px;
+    background-color: #031268;
+    position: absolute;
+    top: 46%;
+    right: 1px;
+}
+
+.x-rotate-l {
+    rotate: -45deg;
+}
+
+.x-rotate-r {
+    rotate: 45deg
+}
+
+.o {
+    width: 93%;
+    height: 91%;
+    position: absolute;
+    border-radius: 50%;
+    border: 13px solid #e41a1a;
+    top: 4%;
+    left: 3%;
 }

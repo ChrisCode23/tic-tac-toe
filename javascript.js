@@ -21,6 +21,8 @@ const Gameboard = () => {
         return boardToCellValues;
     };
 
+    const getTest = () => board;
+
 
     // It determines if any move is possible by checking if any cell is available
     const checkCells = () => {
@@ -59,15 +61,15 @@ const Gameboard = () => {
         console.log(getBoard());
     };
 
-    return { getBoard, markSign, printBoard, checkCells };
+    return { getBoard, getTest, markSign, printBoard, checkCells };
 
 };
 
 
 /* A Cell is a square of the gameboard
 ** 0: no sign is in the square
-** 1: Player 1's sign
-** 2: Player 2's (aka CPU's) sign
+** "X": User's sign
+** "O": CPU's sign
 */
 
 const Cell = () => {
@@ -91,8 +93,69 @@ const Cell = () => {
     }
 };
 
+const displayController = (board) => {
+
+    // Remove existing sign DOM elements
+    // Loop through all cells
+    for (let i = 0; i < board.getTest().length; i++) {
+        for (let j = 0; j < board.getTest()[i].length; j++) {
+            const cell = document.querySelector(`#row-${i} .cell-${j}`);
+            const sign = cell.querySelector(".sign");
+
+            // If that cell contains a sign container, deletes it
+            if (sign) {
+                cell.removeChild(sign);
+            }
+        }
+    }
 
 
+    // Used when a player makes a move to render it to the actual board
+    // Board object is passed as argument to allow to retrieve the current state of the board array
+    const renderBoard = () => {
+        // Loop through each row of the board
+        for (let i = 0; i < board.getTest().length; i++) {
+            // Loop through each cell contained in that row
+            for (let j = 0; j < board.getTest()[i].length; j++) {
+                const cell = document.querySelector(`#row-${i} .cell-${j}`);
+                const domSign = cell.querySelector(".sign");
+
+                // Checks if a sign has already been added to the DOM
+                // If so, skip this cell and continue with the loop
+                if (domSign) {
+                    continue;
+                }
+                
+                
+                // If the cell value matches player's sign, and sign hasn't been added to the DOM, add sign based on which player is making the move
+                if (board.getTest()[i][j].getValue() == game.getActivePlayer().sign) {
+                    const domSign = document.createElement("div");
+
+                    domSign.classList.add("sign");
+
+                    if (game.getActivePlayer().name === "User") {
+                        const xRotateL = document.createElement("div");
+                        xRotateL.classList.add("x-rotate-l");
+                        const xRotateR = document.createElement("div");
+                        xRotateR.classList.add("x-rotate-r");
+
+                        cell.appendChild(domSign);
+                        domSign.appendChild(xRotateL);
+                        domSign.appendChild(xRotateR);
+                    } else if (game.getActivePlayer().name === "CPU") {
+                        const o = document.createElement("div");
+                        o.classList.add("o");
+
+                        cell.appendChild(domSign);
+                        domSign.appendChild(o);
+
+                    }
+                }
+            }
+        }
+    }
+    return { renderBoard };
+}
 
 
 const gameController = () => {
@@ -103,17 +166,17 @@ const gameController = () => {
     const players = [
         {
             name: "User",
-            sign: 1,
+            sign: "X",
             score: 0
         },
         {
             name: "CPU",
-            sign: 2,
+            sign: "O",
             score: 0
         }
     ];
 
-    
+
 
     // Sets default player who starts the game
     let activePlayer = players[0];
@@ -152,6 +215,9 @@ const gameController = () => {
 
         // Resets the board after new round starts
         const board = Gameboard();
+
+        // Resets the dom elements in the board so that the ones from previous round are removed
+        const dom = displayController(board);
 
         let isRoundFinished = false;
 
@@ -199,11 +265,13 @@ const gameController = () => {
             board.printBoard();
             if (!isRoundFinished) {
                 console.log(`It's ${getActivePlayer().name}'s turn!`);
+
             }
         };
 
         // Player chooses cell to mark and the value is added to that cell
         const makeMove = () => {
+
             let row = 0;
             let column = 0;
             // Holds the only row/column selectable by the User. Allows the CPU to select one of these numbers
@@ -255,14 +323,14 @@ const gameController = () => {
             } else {
                 console.log(`${getActivePlayer().name} has made his move`);
                 board.markSign(row, column, getActivePlayer().sign);
-
+                dom.renderBoard(board);
                 // Every time after player makes his move, checks if he's won
                 checkWin(board.getBoard(), players[0]);
                 checkWin(board.getBoard(), players[1]);
             }
         }
 
-        
+
 
         printNewRound();
 
@@ -332,13 +400,17 @@ const gameController = () => {
     };
 
 
-    return { playRound };
+    return { playRound, getActivePlayer };
 }
 
 const game = gameController();
 
 const newRound = document.querySelector(".new-round");
 
+
+
 newRound.addEventListener("click", () => {
     game.playRound();
 })
+
+
