@@ -110,6 +110,44 @@ const displayController = (board) => {
     }
 
 
+
+    // When it's user's turn, instead of inserting the coordinates via a prompt, user clicks on the cell he wants to mark
+    // The coordinates are chosen based on the cell clicked, by converting their class names into values that will be passed into makeAMove
+
+    const chooseCell = (cell) => {
+
+        // Returns class of selected cell and extracts its number
+        const cellClass = cell.className.split("-")[1];
+        let cellNum = cellClass.substring(0, 1);
+
+        // Returns row of selected cell and extracts its number
+        let rowNum = cell.parentElement.id.substring(4, 5);
+
+        // Cell "coordinates" that are used when User makes a move
+        const row = ++rowNum;
+        const column = ++cellNum;
+
+        const getRow = () => row;
+        const getColumn = () => column;
+
+
+        // const domSign = document.createElement("div");
+
+        // domSign.classList.add("sign");
+
+        // const xRotateL = document.createElement("div");
+        // xRotateL.classList.add("x-rotate-l");
+        // const xRotateR = document.createElement("div");
+        // xRotateR.classList.add("x-rotate-r");
+
+        // cell.appendChild(domSign);
+        // domSign.appendChild(xRotateL);
+        // domSign.appendChild(xRotateR);
+
+        return { getRow, getColumn };
+    };
+
+
     // Used when a player makes a move to render it to the actual board
     // Board object is passed as argument to allow to retrieve the current state of the board array
     const renderBoard = () => {
@@ -125,8 +163,8 @@ const displayController = (board) => {
                 if (domSign) {
                     continue;
                 }
-                
-                
+
+
                 // If the cell value matches player's sign, and sign hasn't been added to the DOM, add sign based on which player is making the move
                 if (board.getTest()[i][j].getValue() == game.getActivePlayer().sign) {
                     const domSign = document.createElement("div");
@@ -154,11 +192,12 @@ const displayController = (board) => {
             }
         }
     }
-    return { renderBoard };
+    return { renderBoard, chooseCell };
 }
 
 
 const gameController = () => {
+
     let gameFinished = false;
     let winScore = 5;
 
@@ -218,8 +257,10 @@ const gameController = () => {
 
         // Resets the dom elements in the board so that the ones from previous round are removed
         const dom = displayController(board);
+        
 
         let isRoundFinished = false;
+
 
 
         // Checks if the current player has won the round and the game
@@ -269,8 +310,11 @@ const gameController = () => {
             }
         };
 
+        let isFound = false;
+
         // Player chooses cell to mark and the value is added to that cell
-        const makeMove = () => {
+        const makeMove = (cell) => {
+            if (isRoundFinished) return;
 
             let row = 0;
             let column = 0;
@@ -283,118 +327,206 @@ const gameController = () => {
             ** Allowing to make it choose *coordinates* automatically
             */
             const chooseRow = () => {
-                if (getActivePlayer() === players[0]) {
-                    do {
-                        row = parseInt(prompt("Choose row", ""), 10);
-                    } while (row < validAns[0] || row > validAns[2] || isNaN(row));
-                }
+                // if (getActivePlayer() === players[0]) {
+                //     do {
+                //         row = parseInt(prompt("Choose row", ""), 10);
+                //     } while (row < validAns[0] || row > validAns[2] || isNaN(row));
+                // }
+
                 if (getActivePlayer() === players[1]) {
                     row = validAns[Math.floor(Math.random() * validAns.length)];
                 }
             }
             const chooseColumn = () => {
-                if (getActivePlayer() === players[0]) {
-                    do {
-                        column = parseInt(prompt("Choose column", ""), 10);
-                    } while (column < validAns[0] || column > validAns[2] || isNaN(column));
-                }
+                // if (getActivePlayer() === players[0]) {
+                //     do {
+                //         column = parseInt(prompt("Choose column", ""), 10);
+                //     } while (column < validAns[0] || column > validAns[2] || isNaN(column));
+                // }
                 if (getActivePlayer() === players[1]) {
                     column = validAns[Math.floor(Math.random() * validAns.length)];
                 }
             }
 
-
-            // Once both prompts have been entered, check if the coordinates match a cell that's already been selected
-            // If so, make player enter the coordinates again until they don't match an occupied cell
-            chooseRow();
-            chooseColumn();
-
-            while (board.getBoard()[row - 1][column - 1] != 0) {
-                chooseRow();
-                chooseColumn();
-            }
-
-            // If no cells are available based on value returned by "checkCells", then no move is made
-            // Else it logs the move, makes it and checks if we have a winner
             if (board.checkCells() == false) {
                 console.log("No more moves available!");
                 isRoundFinished = true;
                 return;
-            } else {
+            } 
+
+
+            // Once both prompts have been entered, check if the coordinates match a cell that's already been selected
+            // If so, make player enter the coordinates again until they don't match an occupied cell
+            if (getActivePlayer() === players[0]) {
+                row = dom.chooseCell(cell).getRow();
+                column = dom.chooseCell(cell).getColumn();
+
+
+                while (board.getBoard()[row - 1][column - 1] != 0) {
+                    return;
+                }
+            }
+            if (getActivePlayer() === players[1]) {
+                chooseRow();
+                chooseColumn();
+
+                while (board.getBoard()[row - 1][column - 1] != 0) {
+                    chooseRow();
+                    chooseColumn();
+                }
+            }
+
+
+
+            // If the chosen cell has been selected, forces to select another
+
+
+            // If no cells are available based on value returned by "checkCells", then no move is made
+            // Else it logs the move, makes it and checks if we have a winner
+           
                 console.log(`${getActivePlayer().name} has made his move`);
+
                 board.markSign(row, column, getActivePlayer().sign);
+
                 dom.renderBoard(board);
+
                 // Every time after player makes his move, checks if he's won
                 checkWin(board.getBoard(), players[0]);
                 checkWin(board.getBoard(), players[1]);
-            }
+
+                switchPlayersTurn();
+
+                printNewRound();
+
+            
         }
 
+        // Press new round button
 
+        // When user has to make a move, wait for him to click a cell on the board
+        // The class value of the selected cell is taken as row and column "coordinates"
+        // Check if the cell value of selected coordinates is different than 0 : that means it's occupied, so force the player to click another cell
+        // If all cells are occupied, log "no more moves available", and round is a draw
+        // Otherwise mark the cell on the board via markSign method (this changes the cell values on 2d board array)
+        // The renderBoard method will then render the sign on the actual board UI
+        // Check if any of the players have won after the move
 
-        printNewRound();
+        // When cpu has to make a move, there is no waiting a click or event
+        // chooseRow and chooseCell functions are used to generate random coordinates for the cell
+        // Just like the user, it checks if the cell selected with those coordinates has been occupied
+        // If so, force cpu to generate another coordinates until it matches a cell that wasn't selected
+        // If all cells are occupied, log "no more moves available", and round is a draw
+        // Otherwise mark the cell on the board via markSign method (this changes the cell values on 2d board array)
+        // The renderBoard method will then render the sign on the actual board UI
+        // Check if any of the players have won after the move
 
-        if (isRoundFinished === true) { return } else { makeMove() };
-
-        switchPlayersTurn();
-
-        printNewRound();
-
-        if (isRoundFinished === true) { return } else { makeMove() };
-
-        switchPlayersTurn();
-
-        printNewRound();
-
-        if (isRoundFinished === true) { return } else { makeMove() };
-
-        switchPlayersTurn();
-
-        printNewRound();
-
-        if (isRoundFinished === true) { return } else { makeMove() };
-
-        switchPlayersTurn();
-
-        printNewRound();
-
-        if (isRoundFinished === true) { return } else { makeMove() };
-
-        switchPlayersTurn();
-
+        // Initial round message
         printNewRound();
 
 
-        if (isRoundFinished === true) { return } else { makeMove() };
-
-        switchPlayersTurn();
-
-        printNewRound();
-
-        if (isRoundFinished === true) { return } else { makeMove() };
-
-        switchPlayersTurn();
-
-        printNewRound();
-
-        if (isRoundFinished === true) { return } else { makeMove() };
-
-        switchPlayersTurn();
-
-        printNewRound();
 
 
-        if (isRoundFinished === true) { return } else { makeMove() };
 
-        switchPlayersTurn();
+        
 
-        printNewRound();
+            
+            if (getActivePlayer() === players[0] && !isRoundFinished) {
+                cells.forEach((cell) => {
+                    cell.addEventListener("click", () => {
+                        makeMove(cell);
 
-        if (isRoundFinished === true) { return } else { makeMove() };
+                        if (getActivePlayer() === players[1] && !isRoundFinished) {
+                            makeMove();
+                        }
+            
+                    })
+                })
+            }
 
-        switchPlayersTurn();
+            if (getActivePlayer() === players[1] && !isRoundFinished) {
+                makeMove();
 
-        printNewRound();
+                if (getActivePlayer() === players[0] && !isRoundFinished)  {
+                cells.forEach((cell) => {
+                    cell.addEventListener("click", () => {
+                        makeMove(cell);
+
+                        if (getActivePlayer() === players[1] && !isRoundFinished) {
+                            makeMove();
+                        }
+                    })
+                    
+                })
+            }
+            }
+
+            
+
+        
+
+
+
+
+
+
+
+
+
+
+
+        // while (getActivePlayer() === players[1]) {
+        //     makeMove();
+        // }
+
+        // if (isRoundFinished === true) { return } else { makeMove() };
+
+        // switchPlayersTurn();
+
+        // printNewRound();
+
+        // if (isRoundFinished === true) { return } else { makeMove() };
+
+        // switchPlayersTurn();
+
+        // printNewRound();
+
+        // if (isRoundFinished === true) { return } else { makeMove() };
+
+        // switchPlayersTurn();
+
+        // printNewRound();
+
+
+        // if (isRoundFinished === true) { return } else { makeMove() };
+
+        // switchPlayersTurn();
+
+        // printNewRound();
+
+        // if (isRoundFinished === true) { return } else { makeMove() };
+
+        // switchPlayersTurn();
+
+        // printNewRound();
+
+        // if (isRoundFinished === true) { return } else { makeMove() };
+
+        // switchPlayersTurn();
+
+        // printNewRound();
+
+
+        // if (isRoundFinished === true) { return } else { makeMove() };
+
+        // switchPlayersTurn();
+
+        // printNewRound();
+
+        // if (isRoundFinished === true) { return } else { makeMove() };
+
+        // switchPlayersTurn();
+
+        // printNewRound();
 
 
     };
@@ -414,3 +546,31 @@ newRound.addEventListener("click", () => {
 })
 
 
+const cells = document.querySelectorAll(".cell");
+
+
+// cells.forEach((cell) => {
+//     cell.addEventListener("click", () => {
+
+
+//         const cellClass = cell.className.split("-")[1];
+//         const cellNum = cellClass.substring(0, 1)
+
+//         const rowNum = cell.parentElement.id.substring(4, 5)
+//         console.log(rowNum, cellNum);
+
+//         const domSign = document.createElement("div");
+
+//         domSign.classList.add("sign");
+
+//         const xRotateL = document.createElement("div");
+//         xRotateL.classList.add("x-rotate-l");
+//         const xRotateR = document.createElement("div");
+//         xRotateR.classList.add("x-rotate-r");
+
+//         cell.appendChild(domSign);
+//         domSign.appendChild(xRotateL);
+//         domSign.appendChild(xRotateR);
+
+//     })
+// })
