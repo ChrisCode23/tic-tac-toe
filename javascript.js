@@ -51,7 +51,23 @@ const Gameboard = () => {
         console.log(getCells());
     };
 
-    return { getBoard, getCells, markSign, printBoard, checkCells };
+    // Rolls the value of each board-cell back to 0
+    const resetBoard = () => {
+        board.forEach((row) => {
+            row.forEach((column) => {
+                column.resetValue();
+            })
+        })
+    }
+
+    return {
+        getBoard,
+        getCells,
+        checkCells,
+        markSign,
+        printBoard,
+        resetBoard
+    };
 
 };
 
@@ -78,9 +94,12 @@ const Cell = () => {
 
     const getValue = () => value;
 
+    const resetValue = () => value = 0;
+
     return {
         addSign,
-        getValue
+        getValue,
+        resetValue
     }
 };
 
@@ -113,12 +132,16 @@ const gameController = (
 
     let isGameOver = false;
 
+    // Cancels ruling that prevents players from marking more signs after the previous game ended
+    const startGame = () => isGameOver = false;
+
     const gameOver = () => isGameOver = true;
 
     const switchPlayersTurn = () => {
         activePlayer = activePlayer === players[0] ? players[1] : players[0];
     };
 
+    // 01, 10, 20, 22
     // Checks for 3-in-a-row marked cells by the player (horizontally, vertically, diagonally)
     const checkWin = (board, player) => {
         let win = 3;
@@ -131,9 +154,7 @@ const gameController = (
         for (let i = 0; i < length; i++) {
             for (let j = 0; j < length; j++) {
                 (board[i][j] === player.sign) ? rowCount++ : rowCount = 0;
-
                 (board[j][i] === player.sign) ? colCount++ : colCount = 0;
-
                 if ((board[i][j] === player.sign) && i < length - win + 1) {
                     diagRightCount = 0;
                     diagLeftCount = 0;
@@ -148,7 +169,9 @@ const gameController = (
                     gameOver();
                     return true;
                 }
-            } rowCount = 0;
+            } 
+            rowCount = 0;
+            colCount = 0;
         }
     };
 
@@ -182,7 +205,9 @@ const gameController = (
     return {
         playRound,
         getActivePlayer,
-        getBoard: board.getBoard
+        getBoard: board.getBoard,
+        resetBoard: board.resetBoard,
+        startGame
     };
 
 }
@@ -192,6 +217,7 @@ const displayController = () => {
     const game = gameController();
     const playerTurnDiv = document.querySelector(".turn");
     const boardDiv = document.querySelector(".board");
+    const restart = document.querySelector(".restart");
 
     const updateDisplay = () => {
         // Clears the board
@@ -208,7 +234,7 @@ const displayController = () => {
         board.forEach((row, index) => {
             const rowDiv = document.createElement("div");
             rowDiv.classList.add("row");
-            
+
             // Assigns a data-attribute to the row that allows to identify it
             rowDiv.dataset.row = index;
 
@@ -253,12 +279,19 @@ const displayController = () => {
 
         // Passes the selected cell data-attributes as "coordinates" that are used to mark that cell
         game.playRound(selectedRow, selectedColumn);
-        
+
         updateDisplay();
 
     };
 
     boardDiv.addEventListener("click", clickHandlerBoard);
+
+    // Add click eventListener to button for restarting the game
+    restart.addEventListener("click", () => {
+        game.resetBoard();
+        game.startGame();
+        updateDisplay();
+    })
 
     // Initially renders the board before player clicks
     updateDisplay();
@@ -268,13 +301,10 @@ const displayController = () => {
 
 displayController();
 
-const newRound = document.querySelector(".new-round");
 
 
 
-newRound.addEventListener("click", () => {
-    game.playRound();
-})
+
 
 
 
