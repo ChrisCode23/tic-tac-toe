@@ -14,7 +14,7 @@
 
 <body>
 
-    <div class="scoreboard">
+    <!-- <div class="scoreboard">
         <div class="user-score">
             <div class="user-label">User</div>
             <div class="user points">0</div>
@@ -23,17 +23,61 @@
             <div class="cpu-label">CPU</div>
             <div class="cpu points">0</div>
         </div>
-    </div>
-
-    <h1 class="turn"></h1>
+    </div> -->
     
-    <div class="board">
+
+    <div class="intro">
+        <h1>Tic Tac Toe</h1>
+        <h2>Welcome to the game!</h2>
+        <div>
+            <h3>Rules of the game</h3>
+            <ul>
+                <li>You can enter both Player1's and Player2's username</li>
+                <li>Each player marks a sign on the board</li>
+                <li>First player to score 3-signs-in-a-row (horizontally, vertically or diagonally), wins the game</li>
+                <li>If all cells on the board have been marked and no winner was found, it's considered a tie</li>
+                <li>You may restart the game by pressing the corresponding button</li>
+                <li>Have fun and good luck!</li>
+            </ul>
+
+            <button class="play">Play</button>
+        </div>
+        <dialog class="playerOneDialog">
+            <form>
+                <label for="username"></label>
+                <input type="text" name="username" id="username" value="PlayerOne">
+                
+                <button type="submit">Submit</button>
+            </form>
+        </dialog>
+        <dialog class="playerTwoDialog">
+            <form>
+                <label for="username"></label>
+                <input type="text" name="username" id="username" value="PlayerTwo">
+
+                <button type="submit">Submit</button>
+            </form>
+        </dialog>
+            
+                
+            
         
     </div>
 
-    <button class="restart">
-        Restart the game
-    </button>
+    
+   
+    
+
+    <div class="game">
+        <h1 class="turn"></h1>
+        
+        <div class="board">
+        
+        </div>
+        <button class="restart">
+            Restart the game
+        </button>
+    </div>
 
 </body>
 

@@ -189,3 +189,18 @@ h6 {
     top: 4%;
     left: 3%;
 }
+
+dialog {
+    width: 41%;
+    height: 7%;
+    overflow: hidden;
+}
+
+
+/* dialog:-internal-dialog-in-top-layer::backdrop {
+    display: none;
+} */
+
+.game {
+    display: none;
+}
