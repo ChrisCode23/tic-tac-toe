@@ -24,21 +24,7 @@ const Gameboard = () => {
 
 
 
-    // It determines if any move on the board is possible by checking if any cell is available
-    const checkCells = () => {
-        let availableCells = 0;
 
-        // Returns a value that will be checked in playRound
-        board.forEach((row) => {
-            row.forEach((column) => {
-                if (column.getValue() == 0) {
-                    availableCells++;
-                    return true;
-                }
-            })
-        })
-        if (availableCells == 0) { return false };
-    }
 
     // Takes the *coordinates* of the cell which is marked by the player on the board
     // Changes that cell's value to represent the player that marked it
@@ -63,7 +49,6 @@ const Gameboard = () => {
     return {
         getBoard,
         getCells,
-        checkCells,
         markSign,
         printBoard,
         resetBoard
@@ -111,6 +96,8 @@ const gameController = (
     playerTwoName = "PlayerTwo"
 ) => {
 
+
+
     // The sign number indicates which player has marked it
     const players = [
         {
@@ -130,18 +117,27 @@ const gameController = (
 
     const getActivePlayer = () => activePlayer;
 
-    let isGameOver = false;
-
-    // Cancels ruling that prevents players from marking more signs after the previous game ended
-    const startGame = () => isGameOver = false;
-
-    const gameOver = () => isGameOver = true;
-
     const switchPlayersTurn = () => {
         activePlayer = activePlayer === players[0] ? players[1] : players[0];
     };
 
-    
+    // Set to null as long as there's no winner (falsy)
+    let winner = null;
+
+    const getWinner = () => winner;
+
+    let isGameOver = false;
+
+    const getGameStatus = () => isGameOver;
+
+    // Cancels ruling that prevents players from marking more signs and removes winner after the previous game ended
+    const startGame = () => {
+        isGameOver = false;
+        winner = null;
+    }
+
+    const endGame = () => isGameOver = true;
+
     // Checks for 3-in-a-row marked cells by the player (horizontally, vertically, diagonally)
     const checkWin = (board, player) => {
         let win = 3;
@@ -165,8 +161,9 @@ const gameController = (
                 }
                 if (rowCount === win || colCount === win || diagLeftCount === win || diagRightCount === win) {
                     // Returns a "win" message and ends the game
-                    console.log(`${getActivePlayer().name} has won!`);
-                    gameOver();
+                    // console.log(`${getActivePlayer().name} has won!`);
+                    winner = getActivePlayer().name;
+                    endGame();
                     return true;
                 }
             }
@@ -175,12 +172,30 @@ const gameController = (
         }
     };
 
+    // It determines if any move on the board is possible by checking if any cell is available
+    const checkTie = (board) => {
+        board = board.getBoard();
+
+        let availableCells = 0;
+
+        board.forEach((row) => {
+            row.forEach((column) => {
+                if (column.getValue() == 0) {
+                    availableCells++;
+                    return false;
+                }
+            })
+        })
+        if (availableCells == 0) {
+            endGame();
+            return true;
+        };
+    }
+
     const printNewRound = () => {
         board.printBoard();
         console.log(`It's ${getActivePlayer().name}'s turn!`);
     };
-
-
 
     // Execution of a round
     const playRound = (row, column) => {
@@ -189,13 +204,9 @@ const gameController = (
             board.markSign(row, column, getActivePlayer().sign);
 
             // Prevents player from marking more signs if the game has ended
-            if (checkWin(board.getCells(), getActivePlayer()) == true) {
+            if (checkWin(board.getCells(), getActivePlayer()) == true || checkTie(board) == true) {
                 return;
-            } else if (board.checkCells() == false) {
-                console.log("No more moves available! This is a tie");
-                gameOver();
-                return;
-            };
+            }
 
             switchPlayersTurn();
             printNewRound();
@@ -205,6 +216,8 @@ const gameController = (
     return {
         playRound,
         getActivePlayer,
+        getGameStatus,
+        getWinner,
         getBoard: board.getBoard,
         resetBoard: board.resetBoard,
         startGame
@@ -216,19 +229,47 @@ const gameController = (
 const displayController = (player1, player2) => {
 
     const game = gameController(player1, player2);
+    const gameDiv = document.querySelector(".game");
     const playerTurnDiv = document.querySelector(".turn");
     const boardDiv = document.querySelector(".board");
-    const restart = document.querySelector(".restart");
+    const restartBtn = document.querySelector(".restart");
 
 
 
+    // Shows win/tie result upon game-end
+    const winnerScreen = () => {
 
+        // Only works when game is over
+        if (game.getGameStatus() === true) {
 
+            // Prevents from printing more than one result per game
+            if (document.querySelector(".result")) {
+                return;
+            }
+
+            const result = document.createElement("div");
+            result.classList.add("result");
+
+            // Checks if game has a winner and prints a win message
+            if (game.getWinner()) {
+                result.textContent = `${game.getWinner()} has won!`;
+            // Otherwise it's a tie
+            } else if (game.getWinner() == null) {
+                result.textContent = "No more moves available. It's a tie!";
+            };
+
+            gameDiv.appendChild(result);
+        }
+    }
 
 
 
 
     const updateDisplay = () => {
+        // Clears win message from previous game after restarting so it doesn't carry over to the next one
+        if (game.getGameStatus() === false && document.querySelector(".result")) {
+            gameDiv.removeChild(document.querySelector(".result"));
+        }
         // Clears the board
         boardDiv.textContent = "";
 
@@ -273,7 +314,11 @@ const displayController = (player1, player2) => {
                 rowDiv.appendChild(cellDiv);
             })
         })
+
+        winnerScreen();
+
     }
+
 
     // Add click eventListener for the board
     const clickHandlerBoard = (e) => {
@@ -291,14 +336,13 @@ const displayController = (player1, player2) => {
 
         updateDisplay();
 
+
     };
-
-
 
     boardDiv.addEventListener("click", clickHandlerBoard);
 
     // Add click eventListener to button for restarting the game
-    restart.addEventListener("click", () => {
+    restartBtn.addEventListener("click", () => {
         game.resetBoard();
         game.startGame();
         updateDisplay();
@@ -318,7 +362,7 @@ const introScreen = (function () {
     ** We can't directly use the submit button to send data, so we prevent the default use of the button
     ** Upon pressing it, we retrieve the data entered (if it's valid) and store it in players variables
     ** These are then passed in displayController, and gameController as the actual usernames
-    */ 
+    */
 
     // Declare placeholder variables where players' names are stored
     let player1 = "Player1";
@@ -377,7 +421,7 @@ const introScreen = (function () {
 
     playerTwoDialog.addEventListener("close", () => {
         player2 = playerTwoDialog.returnValue;
-        
+
         // Removes the intro-screen and shows the actual game
         introDiv.style.display = "none";
         gameDiv.style.display = "block";
