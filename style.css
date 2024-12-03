@@ -1,16 +1,9 @@
-/*
-  Josh's Custom CSS Reset
-  https://www.joshwcomeau.com/css/custom-css-reset/
-*/
-
-*,
-*::before,
-*::after {
+*, ::before, ::after {
     box-sizing: border-box;
 }
 
 * {
-    margin: 0;
+    margin: 0px;
 }
 
 body {
@@ -19,29 +12,16 @@ body {
     font-family: Lato, Arial, Helvetica, sans-serif;
 }
 
-img,
-picture,
-video,
-canvas,
-svg {
+img, picture, video, canvas, svg {
     display: block;
     max-width: 100%;
 }
 
-input,
-button,
-textarea,
-select {
+input, button, textarea, select {
     font: inherit;
 }
 
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+p, h1, h2, h3, h4, h5, h6 {
     overflow-wrap: break-word;
 }
 
@@ -49,94 +29,89 @@ p {
     text-wrap: pretty;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
     text-wrap: balance;
 }
 
-#root,
-#__next {
+#root, #__next {
     isolation: isolate;
 }
 
-.scoreboard {
-    width: 15%;
-    height: 64px;
-    background-color: #ccc;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    margin-top: 12px;
+.container{
+    padding: 0 12px;
 }
 
-.scoreboard .points {
-    font-size: 1.7rem;
-}
-
-.user-score,
-.cpu-score {
-    width: 50%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.user-label,
-.cpu-label {
-    background-color: #222020;
-    color: aliceblue;
+.intro .container {
     width: 100%;
-    text-align: center;
-    font-weight: 600;
+    align-items: center;
+    font-size: 1.1em;
+    margin-top: 16px;
 }
 
-.user-label {
-    border-right: 1px solid #ccc;
-}
-
-.user.points,
-.cpu.points {
-    width: 100%;
-    display: flex;
+.rule {
+    display: grid;
     justify-content: center;
+    row-gap: 8px;
 }
 
-.user.points {
-    border-right: 1px solid #222020;
+.restart,
+button.play {
+    padding: 4px 32px;
+    font-size: 1.1em;
+    border-radius: 30px;
+    border: 1px solid black;
+    font-weight: bolder;
+    background-color: rgb(49, 100, 135);
+    color: rgb(235, 239, 239);
+}
+
+button.play {
+    justify-self: center;
+
+}
+
+.restart:hover,
+button.play:hover {
+    cursor: pointer;
+    background-color: rgb(219, 223, 223);
+    color: rgb(26, 25, 25);
+}
+
+.rule ul {
+    border-left: 3px solid #202123;
+    border-right: 3px solid #202123;
+    padding: 12px 48px;
+}
+
+h1 {
+    border-bottom: 6px solid white;
+    color: white;
+    background-color: rgb(49, 100, 135);
+    padding: 8px 16px;
+}
+
+h2 {
+    color: rgb(22, 40, 53);
 }
 
 .board {
-    background-color: #2c2a2a;
+    background-color: rgb(44, 42, 42);
     width: 512px;
     height: 512px;
-    margin: 48px auto 0;
+    margin: 48px auto 0px;
     display: flex;
     gap: 14px;
     flex-direction: column;
 }
+
 .row {
     display: flex;
     flex-grow: 1;
     gap: 14px;
 }
-/* .gameboard .cell-1
-{
-    background-color: #ebefef;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-} */
 
 .cell {
-    background-color: #ebefef;
+    background-color: rgb(235, 239, 239);
     flex-grow: 1;
     display: flex;
     overflow: hidden;
@@ -145,10 +120,6 @@ h6 {
     justify-content: center;
     position: relative;
     align-items: center;
-}
-
-.new-round {
-    margin-left: 48px;
 }
 
 .sign {
@@ -162,45 +133,22 @@ h6 {
     align-items: center;
 }
 
-.x-rotate-left,
-.x-rotate-right {
-    width: 99%;
-    height: 16px;
-    background-color: #031268;
-    position: absolute;
-    top: 46%;
-    right: 1px;
-}
-
-.x-rotate-left {
-    rotate: -45deg;
-}
-
-.x-rotate-right {
-    rotate: 45deg
-}
-
-.o {
-    width: 93%;
-    height: 91%;
-    position: absolute;
-    border-radius: 50%;
-    border: 13px solid #e41a1a;
-    top: 4%;
-    left: 3%;
-}
-
 dialog {
     width: 41%;
-    height: 7%;
+    height: 8%;
     overflow: hidden;
+    margin: auto;
 }
-
-
-/* dialog:-internal-dialog-in-top-layer::backdrop {
-    display: none;
-} */
 
 .game {
     display: none;
+}
+
+
+
+.result {
+    margin-top: 24px;
+    font-size: 2.3em;
+    display: flex;
+    justify-content: center;
 }
