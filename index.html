@@ -7,25 +7,14 @@
     <title>Tic Tac Toe</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
     <script src="./javascript.js" defer></script>
 </head>
 
 <body>
-
-    <!-- <div class="scoreboard">
-        <div class="user-score">
-            <div class="user-label">User</div>
-            <div class="user points">0</div>
-        </div>
-        <div class="cpu-score">
-            <div class="cpu-label">CPU</div>
-            <div class="cpu points">0</div>
-        </div>
-    </div> -->
-    
-
     <div class="intro">
         <h1>Tic Tac Toe</h1>
         <h2>Welcome to the game!</h2>
@@ -45,40 +34,30 @@
         <dialog class="playerOneDialog">
             <form>
                 <label for="username"></label>
-                <input type="text" name="username" id="username" value="PlayerOne">
-                
+                <input type="text" name="username" id="username" value="PlayerOne" autocomplete="on">
+
                 <button type="submit">Submit</button>
             </form>
         </dialog>
         <dialog class="playerTwoDialog">
             <form>
                 <label for="username"></label>
-                <input type="text" name="username" id="username" value="PlayerTwo">
+                <input type="text" name="username" id="username" value="PlayerTwo" autocomplete="on">
 
                 <button type="submit">Submit</button>
             </form>
         </dialog>
-            
-                
-            
-        
     </div>
-
-    
-   
-    
-
     <div class="game">
         <h1 class="turn"></h1>
-        
+
         <div class="board">
-        
+
         </div>
         <button class="restart">
             Restart the game
         </button>
     </div>
-
 </body>
 
 </html>

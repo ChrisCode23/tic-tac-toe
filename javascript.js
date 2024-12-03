@@ -22,10 +22,6 @@ const Gameboard = () => {
         return boardToCellValues;
     };
 
-
-
-
-
     // Takes the *coordinates* of the cell which is marked by the player on the board
     // Changes that cell's value to represent the player that marked it
     const markSign = (row, column, player) => {
@@ -89,14 +85,11 @@ const Cell = () => {
 };
 
 
-
 const gameController = (
     // Sets default players names
     playerOneName = "PlayerOne",
     playerTwoName = "PlayerTwo"
 ) => {
-
-
 
     // The sign number indicates which player has marked it
     const players = [
@@ -160,8 +153,6 @@ const gameController = (
                     }
                 }
                 if (rowCount === win || colCount === win || diagLeftCount === win || diagRightCount === win) {
-                    // Returns a "win" message and ends the game
-                    // console.log(`${getActivePlayer().name} has won!`);
                     winner = getActivePlayer().name;
                     endGame();
                     return true;
@@ -204,7 +195,7 @@ const gameController = (
             board.markSign(row, column, getActivePlayer().sign);
 
             // Prevents player from marking more signs if the game has ended
-            if (checkWin(board.getCells(), getActivePlayer()) == true || checkTie(board) == true) {
+            if (checkWin(board.getCells(), getActivePlayer()) === true || checkTie(board) === true) {
                 return;
             }
 
@@ -226,44 +217,108 @@ const gameController = (
 }
 
 // Manages the game's display/DOM elements 
-const displayController = (player1, player2) => {
+const displayController = () => {
 
-    const game = gameController(player1, player2);
+    let game = gameController();
     const gameDiv = document.querySelector(".game");
     const playerTurnDiv = document.querySelector(".turn");
     const boardDiv = document.querySelector(".board");
     const restartBtn = document.querySelector(".restart");
 
+    // Controls the DOM elements of the game-intro screen upon loading the page
+    // IIFE as it only needs to be executed once
+    const introScreen = (function () {
+
+        /* Dialogs are used to allow both players to enter their names
+        // Players should enter a username (a default one is already entered)
+        ** We can't directly use the submit button to send data, so we prevent the default use of the button
+        ** Upon pressing it, we retrieve the data entered (if it's valid) and store it in players variables
+        ** These are then passed in gameController as the actual usernames
+        */
+
+        // Declare placeholder variables where players' names are stored
+        let player1 = "Player1";
+        let player2 = "Player2";
+
+        const introDiv = document.querySelector(".intro");
+        const gameDiv = document.querySelector(".game");
+        const playBtn = document.querySelector(".play");
+
+        const playerOneDialog = document.querySelector(".playerOneDialog");
+        const playerTwoDialog = document.querySelector(".playerTwoDialog");
+
+        const playerOneLabel = playerOneDialog.querySelector("label[for=username]");
+        const playerTwoLabel = playerTwoDialog.querySelector("label[for=username]");
+        const playerOneInput = playerOneDialog.querySelector("input[id=username]");
+        const playerTwoInput = playerTwoDialog.querySelector("input[id=username]");
+        const playerOneSubmitBtn = playerOneDialog.querySelector("button[type=submit]");
+        const playerTwoSubmitBtn = playerTwoDialog.querySelector("button[type=submit]");
+
+        playerOneLabel.textContent = `${player1}, please enter your username`;
+        playerTwoLabel.textContent = `${player2}, please enter your username`;
+
+        // Checks if the username entered is valid
+        const testUsername = (testcase) => {
+            const validUsername = /^[0-9A-Za-z]{6,16}$/;
+            return validUsername.test(testcase);
+        }
+
+        playBtn.addEventListener("click", () => {
+            playerOneDialog.showModal();
+        })
 
 
-    // Shows win/tie result upon game-end
-    const winnerScreen = () => {
-
-        // Only works when game is over
-        if (game.getGameStatus() === true) {
-
-            // Prevents from printing more than one result per game
-            if (document.querySelector(".result")) {
+        playerOneSubmitBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            // Player must enter username again if it's incorrect
+            if (!testUsername(playerOneInput.value)) {
                 return;
             }
+            playerOneDialog.close(playerOneInput.value);
+        })
 
-            const result = document.createElement("div");
-            result.classList.add("result");
-
-            // Checks if game has a winner and prints a win message
-            if (game.getWinner()) {
-                result.textContent = `${game.getWinner()} has won!`;
-            // Otherwise it's a tie
-            } else if (game.getWinner() == null) {
-                result.textContent = "No more moves available. It's a tie!";
-            };
-
-            gameDiv.appendChild(result);
-        }
-    }
+        playerOneDialog.addEventListener("close", () => {
+            player1 = playerOneDialog.returnValue;
+            playerTwoDialog.showModal();
+        })
 
 
+        playerTwoSubmitBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            if (!testUsername(playerTwoInput.value)) {
+                return;
+            }
+            playerTwoDialog.close(playerTwoInput.value);
+        })
 
+        playerTwoDialog.addEventListener("close", () => {
+            player2 = playerTwoDialog.returnValue;
+
+            // Removes the intro-screen and shows the actual game
+            document.body.removeChild(introDiv);
+            gameDiv.style.display = "block";
+
+            // Useful when pressing "Esc" to exit out of dialog before entering a name
+            // Sets both usernames to default names set in gameController
+            if (player1.length === 0) player1 = undefined;
+            if (player2.length === 0) player2 = undefined;
+
+            // Passes the usernames which have been entered in the dialog windows
+            game = gameController(player1, player2);
+
+            boardDiv.addEventListener("click", clickHandlerBoard);
+
+            // Add click eventListener to button for restarting the game
+            restartBtn.addEventListener("click", () => {
+                game.resetBoard();
+                game.startGame();
+                updateDisplay();
+            })
+
+            // Initially renders the board before player clicks
+            updateDisplay();
+        })
+    })();
 
     const updateDisplay = () => {
         // Clears win message from previous game after restarting so it doesn't carry over to the next one
@@ -319,7 +374,6 @@ const displayController = (player1, player2) => {
 
     }
 
-
     // Add click eventListener for the board
     const clickHandlerBoard = (e) => {
         // Takes the data-attributes of the selected cell
@@ -339,105 +393,35 @@ const displayController = (player1, player2) => {
 
     };
 
-    boardDiv.addEventListener("click", clickHandlerBoard);
+     // Shows win/tie result upon game-end
+     const winnerScreen = () => {
 
-    // Add click eventListener to button for restarting the game
-    restartBtn.addEventListener("click", () => {
-        game.resetBoard();
-        game.startGame();
-        updateDisplay();
-    })
+        // Only works when game is over
+        if (game.getGameStatus() === true) {
 
-    // Initially renders the board before player clicks
-    updateDisplay();
+            // Prevents from printing more than one result per round
+            if (document.querySelector(".result")) {
+                return;
+            }
 
+            const result = document.createElement("div");
+            result.classList.add("result");
 
+            // Checks if game has a winner and prints a win message
+            if (game.getWinner()) {
+                result.textContent = `${game.getWinner()} has won!`;
+                // Otherwise it's a tie
+            } else if (game.getWinner() == null) {
+                result.textContent = "No more moves available. It's a tie!";
+            };
+
+            gameDiv.appendChild(result);
+        }
+    }
 }
 
-// Controls the DOM elements of the game-intro screen upon loading the page
-const introScreen = (function () {
 
-    /* Dialogs are used to allow both players to enter their names
-    // Players should enter a username (a default one is already entered)
-    ** We can't directly use the submit button to send data, so we prevent the default use of the button
-    ** Upon pressing it, we retrieve the data entered (if it's valid) and store it in players variables
-    ** These are then passed in displayController, and gameController as the actual usernames
-    */
-
-    // Declare placeholder variables where players' names are stored
-    let player1 = "Player1";
-    let player2 = "Player2";
-
-    const introDiv = document.querySelector(".intro");
-    const gameDiv = document.querySelector(".game");
-    const playBtn = document.querySelector(".play");
-
-    const playerOneDialog = document.querySelector(".playerOneDialog");
-    const playerTwoDialog = document.querySelector(".playerTwoDialog");
-
-    const playerOneLabel = playerOneDialog.querySelector("label[for=username]");
-    const playerTwoLabel = playerTwoDialog.querySelector("label[for=username]");
-    const playerOneInput = playerOneDialog.querySelector("input[id=username]");
-    const playerTwoInput = playerTwoDialog.querySelector("input[id=username]");
-    const playerOneSubmitBtn = playerOneDialog.querySelector("button[type=submit]");
-    const playerTwoSubmitBtn = playerTwoDialog.querySelector("button[type=submit]");
-
-    playerOneLabel.textContent = `${player1}, please enter your username`;
-    playerTwoLabel.textContent = `${player2}, please enter your username`;
-
-    // Checks if the username entered is valid
-    const testUsername = (testcase) => {
-        const validUsername = /^[0-9A-Za-z]{6,16}$/;
-        return validUsername.test(testcase);
-    }
-
-    playBtn.addEventListener("click", () => {
-        playerOneDialog.showModal();
-    })
-
-
-    playerOneSubmitBtn.addEventListener("click", (event) => {
-        event.preventDefault();
-        // Player must enter username again if it's incorrect
-        if (!testUsername(playerOneInput.value)) {
-            return;
-        }
-        playerOneDialog.close(playerOneInput.value);
-    })
-
-    playerOneDialog.addEventListener("close", () => {
-        player1 = playerOneDialog.returnValue;
-        playerTwoDialog.showModal();
-    })
-
-
-    playerTwoSubmitBtn.addEventListener("click", (event) => {
-        event.preventDefault();
-        if (!testUsername(playerTwoInput.value)) {
-            return;
-        }
-        playerTwoDialog.close(playerTwoInput.value);
-    })
-
-    playerTwoDialog.addEventListener("close", () => {
-        player2 = playerTwoDialog.returnValue;
-
-        // Removes the intro-screen and shows the actual game
-        introDiv.style.display = "none";
-        gameDiv.style.display = "block";
-
-        // Useful when pressing "Esc" to exit out of dialog before entering a name
-        // Sets both usernames to default names set in gameController
-        if (player1.length === 0) player1 = undefined;
-        if (player2.length === 0) player2 = undefined;
-
-        // Passes the usernames which have been entered in the dialog windows
-        displayController(player1, player2);
-    })
-})();
-
-
-
+displayController();
 
 
 
